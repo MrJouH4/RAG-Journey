@@ -25,6 +25,7 @@ RAG-Journey/
 - **Groq** — LLM inference (Llama 3.1 8B)
 
 ## Setup
+
 ```bash
 git clone https://github.com/MrJouH4/RAG-Journey.git
 cd RAG-Journey
@@ -34,22 +35,10 @@ pip install -r requirements.txt
 ```
 
 ## Environment Variables
+
 ```bash
 export HF_TOKEN=your_huggingface_token
 export GROQ_API_KEY=your_groq_api_key
-```
-
-## Usage
-```python
-from 01_basics.retriever import create_qa_chain
-from 01_basics.embeddings import load_vectorstore
-
-vectorstore = load_vectorstore()
-retriever = vectorstore.as_retriever()
-chain = create_qa_chain(retriever)
-
-result = chain.invoke({"input": "your question here"})
-print(result['answer'])
 ```
 
 ## Roadmap
