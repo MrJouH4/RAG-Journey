@@ -7,6 +7,7 @@ Instead of relying only on what the LLM was trained on, RAG allows the model to 
 Document → Chunks → Embeddings → Vectorstore → Retriever → LLM → Answer
 
 ## Project Structure
+```bash
 RAG-Journey/
 ├── 01_basics/
 │   ├── loader.py       # Load PDF, TXT, CSV files
@@ -17,7 +18,7 @@ RAG-Journey/
 ├── reranking.py
 ├── hybrid_search.py
 └── evaluation.py
-
+```
 ## Stack
 - **LangChain** — RAG framework
 - **HuggingFace** — Embeddings (all-MiniLM-L6-v2)
