@@ -14,16 +14,19 @@ RAG-Journey/
 │   ├── splitter.py     # Split docs into chunks
 │   ├── embeddings.py   # Embed chunks + FAISS vectorstore
 │   └── retriever.py    # RAG chain with Groq LLM
-└── 02_advanced/        # Coming soon
-├── reranking.py
-├── hybrid_search.py
-└── evaluation.py
+└── 02_advanced/        
+├── 01_reranking.ipynb        # Reranking with CrossEncoder
+├── 02_hybrid_search.ipynb    # Coming soon
+├── 03_chromadb.ipynb         # Coming soon
+├── 04_evaluation.ipynb       # Coming soon
+└── 05_agentic_rag.ipynb      # Coming soon
 ```
 ## Stack
 - **LangChain** — RAG framework
 - **HuggingFace** — Embeddings (all-MiniLM-L6-v2)
 - **FAISS** — Vector store
 - **Groq** — LLM inference (Llama 3.1 8B)
+- **CrossEncoder** — Reranking (ms-marco-MiniLM-L-6-v2)
 
 ## Setup
 
@@ -47,7 +50,7 @@ export GROQ_API_KEY=your_groq_api_key
 - [x] Text Splitting
 - [x] Embeddings + FAISS
 - [x] Basic RAG Chain
-- [ ] Reranking
+- [x] Reranking with CrossEncoder
 - [ ] Hybrid Search
 - [ ] Evaluation
 - [ ] ChromaDB
