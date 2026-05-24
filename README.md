@@ -15,11 +15,11 @@ RAG-Journey/
 │   ├── embeddings.py   # Embed chunks + FAISS vectorstore
 │   └── retriever.py    # RAG chain with Groq LLM
 └── 02_advanced/        
-├── 01_reranking.ipynb        # Reranking with CrossEncoder
-├── 02_hybrid_search.ipynb    # Coming soon
-├── 03_chromadb.ipynb         # Coming soon
-├── 04_evaluation.ipynb       # Coming soon
-└── 05_agentic_rag.ipynb      # Coming soon
+│   ├── 01_reranking.ipynb        # Reranking with CrossEncoder
+│   ├── 02_hybrid_search.ipynb    # Coming soon
+│   ├── 03_chromadb.ipynb         # Coming soon
+│   ├── 04_evaluation.ipynb       # Coming soon
+└── └── 05_agentic_rag.ipynb      # Coming soon
 ```
 ## Stack
 - **LangChain** — RAG framework
