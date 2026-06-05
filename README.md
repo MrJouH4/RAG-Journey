@@ -15,11 +15,13 @@ RAG-Journey/
 │   ├── embeddings.py   # Embed chunks + FAISS vectorstore
 │   └── retriever.py    # RAG chain with Groq LLM
 └── 02_advanced/        
-│   ├── 01_reranking.ipynb        # Reranking with CrossEncoder
-│   ├── 02_hybrid_search.ipynb    # Coming soon
-│   ├── 03_chromadb.ipynb         # Coming soon
-│   ├── 04_evaluation.ipynb       # Coming soon
-└── └── 05_agentic_rag.ipynb      # Coming soon
+│   ├── 01_reranking.ipynb             # Reranking with CrossEncoder
+│   ├── 02_hybrid_search.ipynb         # BM25 + FAISS + RRF
+│   ├── 03_query_transformation.ipynb  # Coming soon
+│   ├── 04_evaluation.ipynb            # Coming soon
+│   ├── 05_parent_child.ipynb          # Coming soon
+│   ├── 06_metadata_filtering.ipynb    # Coming soon
+└── └── 07_agentic_rag.ipynb           # Coming soon
 ```
 ## Stack
 - **LangChain** — RAG framework
@@ -27,6 +29,8 @@ RAG-Journey/
 - **FAISS** — Vector store
 - **Groq** — LLM inference (Llama 3.1 8B)
 - **CrossEncoder** — Reranking (ms-marco-MiniLM-L-6-v2)
+- **BM25** — Keyword search
+- **RRF** — Reciprocal Rank Fusion
 
 ## Setup
 
@@ -51,9 +55,10 @@ export GROQ_API_KEY=your_groq_api_key
 - [x] Embeddings + FAISS
 - [x] Basic RAG Chain
 - [x] Reranking with CrossEncoder
-- [ ] Hybrid Search
+- [x] Hybrid Search (BM25 + FAISS + RRF)
 - [ ] Evaluation
-- [ ] ChromaDB
+- [ ] Parent-Child
+- [ ] Metadata Filtering
 - [ ] Agentic RAG
 
 ---
