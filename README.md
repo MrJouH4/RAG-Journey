@@ -31,6 +31,7 @@ RAG-Journey/
 - **CrossEncoder** — Reranking (ms-marco-MiniLM-L-6-v2)
 - **BM25** — Keyword search
 - **RRF** — Reciprocal Rank Fusion
+- **RAGAS** — RAG evaluation framework (Faithfulness, Answer Relevancy, Context Precision, Context Recall)
 
 ## Setup
 
