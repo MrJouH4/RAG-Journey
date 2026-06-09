@@ -18,7 +18,7 @@ RAG-Journey/
 │   ├── 01_reranking.ipynb             # Reranking with CrossEncoder
 │   ├── 02_hybrid_search.ipynb         # BM25 + FAISS + RRF
 │   ├── 03_query_transformation.ipynb  # Multi-Query + HyDE
-│   ├── 04_evaluation.ipynb            # Coming soon
+│   ├── 04_evaluation.ipynb            # RAGAS evaluation
 │   ├── 05_parent_child.ipynb          # Coming soon
 │   ├── 06_metadata_filtering.ipynb    # Coming soon
 └── └── 07_agentic_rag.ipynb           # Coming soon
@@ -57,7 +57,7 @@ export GROQ_API_KEY=your_groq_api_key
 - [x] Reranking with CrossEncoder
 - [x] Hybrid Search (BM25 + FAISS + RRF)
 - [x] Query Transformation (Multi-Query + HyDE)
-- [ ] Evaluation
+- [x] RAG Evaluation with RAGAS
 - [ ] Parent-Child
 - [ ] Metadata Filtering
 - [ ] Agentic RAG
