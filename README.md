@@ -1,25 +1,25 @@
 # RAG Journey 🧠
 
-Building Retrieval Augmented Generation (RAG) from basics to advanced using LangChain.
+Building production-grade Retrieval-Augmented Generation (RAG) systems from core basics to advanced architectures using LangChain.
 
 ## What is RAG?
-Instead of relying only on what the LLM was trained on, RAG allows the model to **search your own documents** and answer based on them.
+Instead of relying only on static training data, RAG enables Large Language Models to dynamically **query external knowledge bases** and generate factually grounded responses.
 Document → Chunks → Embeddings → Vectorstore → Retriever → LLM → Answer
 
 ## Project Structure
 ```bash
 RAG-Journey/
 ├── 01_basics/
-│   ├── loader.py       # Load PDF, TXT, CSV files
-│   ├── splitter.py     # Split docs into chunks
-│   ├── embeddings.py   # Embed chunks + FAISS vectorstore
-│   └── retriever.py    # RAG chain with Groq LLM
+│   ├── loader.py       # Document loading (PDF, TXT, CSV)
+│   ├── splitter.py     # Optimized text splitting strategies
+│   ├── embeddings.py   # Vector embeddings & FAISS index storage
+│   └── retriever.py    # Basic LCEL RAG chain orchestration
 └── 02_advanced/        
-│   ├── 01_reranking.ipynb             # Reranking with CrossEncoder
-│   ├── 02_hybrid_search.ipynb         # BM25 + FAISS + RRF
-│   ├── 03_query_transformation.ipynb  # Multi-Query + HyDE
-│   ├── 04_evaluation.ipynb            # RAGAS evaluation
-│   ├── 05_parent_child.ipynb          # Coming soon
+│   ├── 01_reranking.ipynb             # Context optimization via CrossEncoder reranking
+│   ├── 02_hybrid_search.ipynb         # Lexical (BM25) + Semantic (FAISS) via RRF
+│   ├── 03_query_transformation.ipynb  # Expansion patterns (Multi-Query & HyDE)
+│   ├── 04_evaluation.ipynb            # Rigorous pipeline auditing with RAGAS
+│   ├── 05_parent_child.ipynb          # Decoupled Retrieval (Parent-Document Retriever)
 │   ├── 06_metadata_filtering.ipynb    # Coming soon
 └── └── 07_agentic_rag.ipynb           # Coming soon
 ```
@@ -58,10 +58,10 @@ export GROQ_API_KEY=your_groq_api_key
 - [x] Reranking with CrossEncoder
 - [x] Hybrid Search (BM25 + FAISS + RRF)
 - [x] Query Transformation (Multi-Query + HyDE)
-- [x] RAG Evaluation with RAGAS
-- [ ] Parent-Child
-- [ ] Metadata Filtering
-- [ ] Agentic RAG
+- [x] Enterprise Pipeline Evaluation (RAGAS Metrics Baseline)
+- [x] Decoupled Retrieval Strategies (Parent-Document Retrieval)
+- [ ] Structured Metadata Filtering & Self-Querying Retrievers
+- [ ] Adaptive RAG & Agentic Guardrails
 
 ---
 Built by [MrJouH4](https://github.com/MrJouH4) | Learning in public 🚀
