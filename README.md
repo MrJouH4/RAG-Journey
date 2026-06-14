@@ -20,18 +20,18 @@ RAG-Journey/
 │   ├── 03_query_transformation.ipynb  # Expansion patterns (Multi-Query & HyDE)
 │   ├── 04_evaluation.ipynb            # Rigorous pipeline auditing with RAGAS
 │   ├── 05_parent_child.ipynb          # Decoupled Retrieval (Parent-Document Retriever)
-│   ├── 06_metadata_filtering.ipynb    # Coming soon
+│   ├── 06_metadata_filtering.ipynb    # Structured Metadata Filtering via Custom LCEL Schema
 └── └── 07_agentic_rag.ipynb           # Coming soon
 ```
-## Stack
-- **LangChain** — RAG framework
-- **HuggingFace** — Embeddings (all-MiniLM-L6-v2)
-- **FAISS** — Vector store
-- **Groq** — LLM inference (Llama 3.1 8B)
-- **CrossEncoder** — Reranking (ms-marco-MiniLM-L-6-v2)
-- **BM25** — Keyword search
-- **RRF** — Reciprocal Rank Fusion
-- **RAGAS** — RAG evaluation framework (Faithfulness, Answer Relevancy, Context Precision, Context Recall)
+## Tech Stack
+- Orchestration: LangChain (LCEL Pattern)
+- Inference Engine: Groq API (llama-3.1-8b-instant)
+- Embedding Model: HuggingFace (all-MiniLM-L6-v2)
+- Vector Database: FAISS
+- Lexical Search: BM25
+- Reranking: Cross-Encoder (ms-marco-MiniLM-L-6-v2)
+- Evaluation: RAGAS (Faithfulness, Answer Relevancy, Context Precision, Context Recall)
+- Data Validation: Pydantic
 
 ## Setup
 
@@ -60,7 +60,7 @@ export GROQ_API_KEY=your_groq_api_key
 - [x] Query Transformation (Multi-Query + HyDE)
 - [x] Enterprise Pipeline Evaluation (RAGAS Metrics Baseline)
 - [x] Decoupled Retrieval Strategies (Parent-Document Retrieval)
-- [ ] Structured Metadata Filtering & Self-Querying Retrievers
+- [x] Dynamic Metadata Filtering (Custom LCEL Query Constructor + Pydantic Guardrails)
 - [ ] Adaptive RAG & Agentic Guardrails
 
 ---
