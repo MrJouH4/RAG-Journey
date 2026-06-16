@@ -1,78 +1,72 @@
 import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_groq import ChatGroq
-from tavily import TavilyClient
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 
-app = FastAPI(title="Agentic RAG Production Server")
+app = FastAPI(title="RAG Journey API", version="1.0")
 
-# Initialize Tavily and Groq clients using environment variables
-# This ensures zero local model downloads
-groq_api_key = os.getenv("GROQ_API_KEY")
-tavily_api_key = os.getenv("TAVILY_API_KEY")
+# Define paths
+DATA_DIR = "data"
 
-if not groq_api_key or not tavily_api_key:
-    raise RuntimeError("Missing required environment variables: GROQ_API_KEY or TAVILY_API_KEY")
+# Global variables to hold our loaded assets in memory
+embeddings = None
+vector_store = None
 
-llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0, groq_api_key=groq_api_key)
-tavily_client = TavilyClient(api_key=tavily_api_key)
+@app.on_event("startup")
+def load_vector_store():
+    """Loads the embedding model and FAISS index into memory when the server starts."""
+    global embeddings, vector_store
+    print("Initializing FastAPI server components...")
+    
+    # 1. Initialize the same embedding model used during ingestion
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    
+    # 2. Check if the FAISS index files exist
+    if not os.path.exists(os.path.join(DATA_DIR, "index.faiss")):
+        print(f"Warning: No FAISS index found in '{DATA_DIR}'. Please run ingestion first.")
+        return
 
-# 1. Define Request/Response Schemas
-class QueryRequest(BaseModel):
-    question: str
+    # 3. Load the local FAISS index
+    print(f"Loading FAISS index from ./{DATA_DIR}...")
+    # allow_dangerous_deserialization is required because LangChain uses pickle to load index.pkl
+    vector_store = FAISS.load_local(
+        DATA_DIR, 
+        embeddings, 
+        allow_dangerous_deserialization=True
+    )
+    print("FAISS Index loaded successfully. Vector search is ready.")
 
-class AgentResponse(BaseModel):
-    route_chosen: str
-    answer: str
+# Define Request and Response Schemas
+class SearchQuery(BaseModel):
+    query: str
+    top_k: int = 3
 
-# 2. Pydantic Schema for Router Decisions
-class RouteDecision(BaseModel):
-    destination: str = "Either 'web_search' for real-time/current/general events or 'internal_knowledge' for definitions/static concepts."
-
-parser = JsonOutputParser(pydantic_object=RouteDecision)
-
-# 3. Router Prompt Setup
-router_prompt = ChatPromptTemplate.from_template(
-    "You are an expert query router. Determine if the user's question requires real-time/current data from a web search "
-    "or if it can be answered accurately using general static knowledge.\n"
-    "Format Instructions:\n{format_instructions}\n"
-    "User Question: {question}\n"
-    "Decision JSON:"
-)
-
-router_chain = router_prompt | llm | parser
+class SearchResult(BaseModel):
+    chunk_content: str
+    metadata: dict
 
 @app.get("/")
 def read_root():
-    return {"status": "Agentic RAG Server is running online"}
+    return {"status": "online", "message": "Welcome to the RAG Journey Retrieval API"}
 
-@app.post("/agentic-rag", response_model=AgentResponse)
-async def run_agentic_rag(request: QueryRequest):
+@app.post("/search", response_model=list[SearchResult])
+def search_chunks(payload: SearchQuery):
+    """Accepts a query, performs a vector search, and returns the top_k matching chunks."""
+    global vector_store
+    
+    if vector_store is None:
+        raise HTTPException(status_code=503, detail="Vector store index is not available.")
+    
     try:
-        # Step 1: Run the LLM Router
-        decision = router_chain.invoke({
-            "question": request.question,
-            "format_instructions": parser.get_format_instructions()
-        })
+        # Perform similarity search
+        docs = vector_store.similarity_search(payload.query, k=payload.top_k)
         
-        destination = decision.get("destination", "internal_knowledge")
-        
-        # Step 2: Execute Routing Logic Based on Tool Selection
-        if "web_search" in destination:
-            # Trigger the Tavily web search tool dynamically
-            search_result = tavily_client.search(query=request.question, max_results=2)
-            
-            # Synthesize search results with Groq
-            synthesis_prompt = f"Synthesize a clear answer to the question using these search results:\n{search_result}\nQuestion: {request.question}"
-            answer = llm.invoke(synthesis_prompt).content
-            return AgentResponse(route_chosen="Tavily Web Search", answer=answer)
-            
-        else:
-            # Fallback to pure LLM foundational knowledge
-            answer = llm.invoke(request.question).content
-            return AgentResponse(route_chosen="LLM Foundational Knowledge", answer=answer)
-            
+        # Format output payload
+        results = [
+            SearchResult(chunk_content=doc.page_content, metadata=doc.metadata)
+            for doc in docs
+        ]
+        return results
     except Exception as e:
-        raise HTTPException(status_index=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
