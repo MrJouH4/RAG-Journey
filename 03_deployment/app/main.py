@@ -3,70 +3,75 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
+from langchain_groq import ChatGroq
+from langchain_core.prompts import ChatPromptTemplate
 
 app = FastAPI(title="RAG Journey API", version="1.0")
 
-# Define paths
 DATA_DIR = "data"
-
-# Global variables to hold our loaded assets in memory
 embeddings = None
 vector_store = None
+llm = None
 
 @app.on_event("startup")
 def load_vector_store():
     """Loads the embedding model and FAISS index into memory when the server starts."""
-    global embeddings, vector_store
+    global embeddings, vector_store, llm
     print("Initializing FastAPI server components...")
     
-    # 1. Initialize the same embedding model used during ingestion
+    # Embeddings and Vector Store
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    if os.path.exists(os.path.join(DATA_DIR, "index.faiss")):
+        vector_store = FAISS.load_local(DATA_DIR, embeddings, allow_dangerous_deserialization=True)
+        print("FAISS Index loaded successfully.")
     
-    # 2. Check if the FAISS index files exist
-    if not os.path.exists(os.path.join(DATA_DIR, "index.faiss")):
-        print(f"Warning: No FAISS index found in '{DATA_DIR}'. Please run ingestion first.")
-        return
+    
+    api_key = os.environ.get("GROQ_API_KEY", "mock_key_for_local_testing")
+    llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0)
+    print("Groq LLM initialized.")
 
-    # 3. Load the local FAISS index
-    print(f"Loading FAISS index from ./{DATA_DIR}...")
-    # allow_dangerous_deserialization is required because LangChain uses pickle to load index.pkl
-    vector_store = FAISS.load_local(
-        DATA_DIR, 
-        embeddings, 
-        allow_dangerous_deserialization=True
-    )
-    print("FAISS Index loaded successfully. Vector search is ready.")
 
-# Define Request and Response Schemas
-class SearchQuery(BaseModel):
-    query: str
-    top_k: int = 3
+class QueryRequest(BaseModel):
+    question: str
 
-class SearchResult(BaseModel):
-    chunk_content: str
-    metadata: dict
+class RAGResponse(BaseModel):
+    answer: str
+    context: list[str]
 
 @app.get("/")
 def read_root():
     return {"status": "online", "message": "Welcome to the RAG Journey Retrieval API"}
 
-@app.post("/search", response_model=list[SearchResult])
-def search_chunks(payload: SearchQuery):
-    """Accepts a query, performs a vector search, and returns the top_k matching chunks."""
-    global vector_store
-    
-    if vector_store is None:
-        raise HTTPException(status_code=503, detail="Vector store index is not available.")
+@app.post("/query", response_model=RAGResponse)
+def ask_rag(payload: QueryRequest):
+    """Retrieves context chunks and generates an answer using Groq."""
+    global vector_store, llm
+
+    if vector_store is None or llm is None:
+        raise HTTPException(status_code=503, detail="RAG components are not fully initialized.")
     
     try:
-        # Perform similarity search
-        docs = vector_store.similarity_search(payload.query, k=payload.top_k)
+        # 1. Retrieve the top 3 relevant chunks
+        docs = vector_store.similarity_search(payload.question, k=3)
+        context_texts = [doc.page_content for doc in docs]
         
-        # Format output payload
-        results = [
-            SearchResult(chunk_content=doc.page_content, metadata=doc.metadata)
-            for doc in docs
-        ]
-        return results
+        # 2. Construct the prompt
+        system_prompt = (
+            "You are a helpful assistant. Answer the user's question using ONLY the provided context. "
+            "If you do not know the answer based on the context, say 'I cannot find the answer in the document.'\n\n"
+            "Context:\n{context}"
+        )
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            ("human", "{question}")
+        ])
+
+        # 3. Chain and execute
+        chain = prompt | llm
+        formatted_context = "\n---\n".join(context_texts)
+        response = chain.invoke({"context": formatted_context, "question": payload.question})
+        
+        return RAGResponse(answer=response.content, context=context_texts)
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"RAG execution failed: {str(e)}")
