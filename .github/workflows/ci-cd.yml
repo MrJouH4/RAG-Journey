@@ -40,4 +40,4 @@ jobs:
     - name: Run Verification Tests
       run: |
         cd 03_deployment
-        pytest
+        python -m pytest
